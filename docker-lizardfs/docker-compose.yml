@@ -1,0 +1,42 @@
+version: '3'
+services:
+  mfsmaster:
+    image: kadimasolutions/lizardfs
+    command: master
+    restart: on-failure
+    volumes:
+      - /var/lib/mfs
+    ports:
+      - 9421:9421
+  mfsmaster-shadow:
+    image: kadimasolutions/lizardfs
+    command: master
+    restart: on-failure
+    environment:
+      MFSMASTER_PERSONALITY: shadow
+    volumes:
+      - /var/lib/mfs
+  metalogger:
+    image: kadimasolutions/lizardfs
+    command: metalogger
+    restart: on-failure
+    volumes:
+      - /var/lib/mfs
+  chunkserver:
+    image: kadimasolutions/lizardfs
+    command: chunkserver
+    restart: on-failure
+    environment:
+      # This lets you run the chunkserver with less available disk space
+      MFSCHUNKSERVER_HDD_LEAVE_SPACE_DEFAULT: 20Mi # 4Gi is the default
+      MFSHDD_1: /mnt/mfshdd
+    volumes:
+      - /mnt/mfshdd
+    deploy:
+      mode: global
+  cgiserver:
+    image: kadimasolutions/lizardfs
+    command: cgiserver
+    restart: on-failure
+    ports:
+      - 8080:80
